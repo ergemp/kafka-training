@@ -4,14 +4,12 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
-
-import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AsyncProducer {
+import java.util.Properties;
 
+public class AsyncProducerWithKey {
     private static final Logger log = LoggerFactory.getLogger(AsyncProducer.class.getSimpleName());
 
     public static void main(String[] args) {
@@ -31,7 +29,7 @@ public class AsyncProducer {
         //KafkaProducer<String, String> producer2 = new KafkaProducer<String, String>(props);
 
         ProducerRecord<String, String> record =
-                new ProducerRecord<>("mytopic", "test message from java-10");
+                new ProducerRecord<>("mytopic", "5", "test message from java-10");
 
         try {
             //async producer

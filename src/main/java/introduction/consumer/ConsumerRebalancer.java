@@ -8,11 +8,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ConsumerRebalancer {
+
+    private static final Logger log = LoggerFactory.getLogger(ConsumerRebalancer.class.getSimpleName());
 
     private static KafkaConsumer<String, String> consumer;
 
     public static void main(String[] args) {
+
+        log.info("Consumer Rebalancer Started");
 
         Properties props = new Properties();
         props.put("bootstrap.servers", "192.168.64.10:9092,192.168.64.11:9092,192.168.64.12:9092");

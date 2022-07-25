@@ -16,7 +16,8 @@ public class ConsumerBasic {
     public static void main(String[] args) {
 
         Properties props = new Properties();
-        props.put("bootstrap.servers", "192.168.64.10:9092, 192.168.64.11:9092, 192.168.64.12:9092");
+        //props.put("bootstrap.servers", "192.168.64.10:9092, 192.168.64.11:9092, 192.168.64.12:9092");
+        props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", "KafkaAsyncConsumer");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -24,7 +25,7 @@ public class ConsumerBasic {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         consumer = new KafkaConsumer<String, String>(props);
-        consumer.subscribe(Collections.singletonList("testTopic"));
+        consumer.subscribe(Collections.singletonList("mytopic"));
 
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
