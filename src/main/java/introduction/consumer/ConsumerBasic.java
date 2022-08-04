@@ -9,6 +9,10 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 public class ConsumerBasic {
 
     private static KafkaConsumer<String, String> consumer;
@@ -16,9 +20,8 @@ public class ConsumerBasic {
     public static void main(String[] args) {
 
         Properties props = new Properties();
-        //props.put("bootstrap.servers", "192.168.64.10:9092, 192.168.64.11:9092, 192.168.64.12:9092");
         props.put("bootstrap.servers", "localhost:9092");
-        props.put("group.id", "KafkaAsyncConsumer");
+        props.put("group.id", "ConsumerBasic");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
@@ -30,20 +33,10 @@ public class ConsumerBasic {
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
 
-            // create db connection
-            // read/write db
-
-            for (ConsumerRecord<String, String> record : records)
-            {
-
+            for (ConsumerRecord<String, String> record : records) {
                 System.out.println(String.format("topic = %s, partition = %s, offset = %d, key = %s, value = %s\n",
                         record.topic(), record.partition(), record.offset(), record.key(), record.value()));
-
-                //System.out.println(record);
             }
-
-            //close db connection
-
         }
     }
 }

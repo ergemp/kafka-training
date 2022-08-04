@@ -9,6 +9,10 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 public class ConsumerAtMostOnce {
 
     private static KafkaConsumer<String, String> consumer;
@@ -16,7 +20,7 @@ public class ConsumerAtMostOnce {
     public static void main(String[] args) {
         Properties props = new Properties();
         props.put("bootstrap.servers", "192.168.64.7:9092,192.168.64.8:9092,192.168.64.9:9092");
-        props.put("group.id", "KafkaAsyncConsumer");
+        props.put("group.id", "ConsumerAtMostOnce");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
@@ -30,7 +34,6 @@ public class ConsumerAtMostOnce {
         consumer.subscribe(Collections.singletonList("testTopic2"));
 
         while (true) {
-
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
 
             for (ConsumerRecord<String, String> record : records)

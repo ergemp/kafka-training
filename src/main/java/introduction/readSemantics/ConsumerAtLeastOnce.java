@@ -16,7 +16,7 @@ public class ConsumerAtLeastOnce {
     public static void main(String[] args) {
         Properties props = new Properties();
         props.put("bootstrap.servers", "192.168.64.7:9092,192.168.64.8:9092,192.168.64.9:9092");
-        props.put("group.id", "KafkaAsyncConsumer");
+        props.put("group.id", "ConsumerAtLeastOnce");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
