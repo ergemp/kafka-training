@@ -1,4 +1,4 @@
-package introduction.readSemantics.ExceptionHandling;
+package introduction.readSemantics.OffsetCommitExamples;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
