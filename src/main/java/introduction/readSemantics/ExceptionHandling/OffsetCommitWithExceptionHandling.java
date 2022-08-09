@@ -1,26 +1,26 @@
-package introduction.readSemantics;
+package introduction.readSemantics.ExceptionHandling;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class ConsumerAtLeastOnce {
+public class OffsetCommitWithExceptionHandling {
 
     private static KafkaConsumer<String, String> consumer;
-    private static Logger logger = LoggerFactory.getLogger(ConsumerAtLeastOnce.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(OffsetCommitWithExceptionHandling.class.getName());
 
     public static void main(String[] args) {
+
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
-        props.put("group.id", "ConsumerAtLeastOnce");
+        props.put("group.id", "OffsetCommitWithExceptionHandling");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("auto.offset.reset", "earliest");
@@ -69,11 +69,7 @@ public class ConsumerAtLeastOnce {
 
             logger.info("Committing the offsets");
             // mind the configuration
-            // commitSync retries committing as long as there is no error that can’t be recovered.
-            // If this happens, there is not much we can do except log an error.
-
-            // application is blocked until the broker responds to the commit request
-            consumer.commitSync();
+            consumer.commitAsync();
             //
             logger.info("Offsets committed");
 
@@ -83,6 +79,18 @@ public class ConsumerAtLeastOnce {
             catch(InterruptedException ex){
                 ex.printStackTrace();
             }
+            finally {
+                try {
+                    // commitSync retries committing as long as there is no error that can’t be recovered.
+                    // If this happens, there is not much we can do except log an error.
+
+                    // application is blocked until the broker responds to the commit request
+                    consumer.commitSync();
+                } finally {
+                    consumer.close();
+                }
+            }
         }
+
     }
 }

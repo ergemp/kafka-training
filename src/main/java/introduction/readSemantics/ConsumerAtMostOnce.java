@@ -12,14 +12,13 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ConsumerAtMostOnce {
 
     private static KafkaConsumer<String, String> consumer;
 
     public static void main(String[] args) {
         Properties props = new Properties();
-        props.put("bootstrap.servers", "192.168.64.7:9092,192.168.64.8:9092,192.168.64.9:9092");
+        props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", "ConsumerAtMostOnce");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -36,17 +35,20 @@ public class ConsumerAtMostOnce {
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
 
-            for (ConsumerRecord<String, String> record : records)
-            {
+            // mind the configuration
+            // commitSync retries committing as long as there is no error that can’t be recovered.
+            // If this happens, there is not much we can do except log an error.
+
+            // application is blocked until the broker responds to the commit request
+            consumer.commitSync();
+            //
+
+            for (ConsumerRecord<String, String> record : records) {
                 System.out.println(String.format("topic = %s, partition = %s, offset = %d, key = %s, value = %s\n",
                         record.topic(), record.partition(), record.offset(), record.key(), record.value()));
 
                 //System.out.println(record);
             }
-
-            // mind the configuration
-            consumer.commitSync();
-            //
         }
     }
 }
