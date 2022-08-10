@@ -1,4 +1,4 @@
-package advanced.OffsetCommitExamples;
+package advanced.offsetCommitExamples;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
