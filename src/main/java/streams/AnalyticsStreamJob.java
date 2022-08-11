@@ -32,7 +32,7 @@ public class AnalyticsStreamJob {
         Duration windowSizeMs = Duration.ofSeconds(10);
         Duration gracePeriodMs = Duration.ofSeconds(10);
         //TimeWindows.of(windowSizeMs).grace(gracePeriodMs);
-        // The above is equivalent to the following code:
+        //The above is equivalent to the following code:
         //TimeWindows.of(windowSizeMs).advanceBy(windowSizeMs).grace(gracePeriodMs);
 
         KStream<String, String> source = builder.stream("perf-test");
@@ -52,9 +52,6 @@ public class AnalyticsStreamJob {
                             return new KeyValue<String, String>("null","");
                         }
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                        return new KeyValue<String, String>("error", "");
-                    } catch (IOException e) {
                         e.printStackTrace();
                         return new KeyValue<String, String>("error", "");
                     }

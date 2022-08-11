@@ -18,7 +18,7 @@ public class TumblingWindow {
     private static String inStream = "test";
     private static String outStream = "outEventCounts-10Sec";
     private static String appID = "streamingAPI-tumblingwindow10sec";
-    private static String bootstrapServers = "192.168.56.110:9092";
+    private static String bootstrapServers = "localhost:9092";
 
     public static void main(String[] args) throws Exception
     {

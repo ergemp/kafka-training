@@ -15,7 +15,7 @@ public class MapToGenericDataModel {
         } catch (IOException e) {
             //return null;
             e.printStackTrace();
-        }s
+        }
         finally{
             return model;
         }

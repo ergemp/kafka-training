@@ -15,7 +15,7 @@ public class Join {
     private static String leftStream = "test";
     private static String lookupTable = "outTopics";
     private static String appID = "streamingAPI-join";
-    private static String bootstrapServers = "192.168.56.110:9092";
+    private static String bootstrapServers = "localhost:9092";
 
     public static void main(String[] args) throws Exception
     {

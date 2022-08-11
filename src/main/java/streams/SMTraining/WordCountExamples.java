@@ -20,7 +20,7 @@ public class WordCountExamples {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> source = builder.stream("firstTopic");
+        KStream<String, String> source = builder.stream("mytopic");
 
         /*
         source.mapValues(new ValueMapper<String, Object>() {
@@ -47,7 +47,7 @@ public class WordCountExamples {
         });
         */
 
-        counts.toStream().map((key, value) -> new KeyValue<>(key.toString(), value.toString())).to("secondTopic");
+        counts.toStream().map((key, value) -> new KeyValue<>(key.toString(), value.toString())).to("targettopic");
 
         Topology topology = builder.build();
         System.out.println(topology.describe());

@@ -15,19 +15,19 @@ public class WriteToKafkaExamples {
     public static void main(String[] args) {
         Properties props = new Properties();
 
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "WordCountExamples");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "WriteToKafkaExamples");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> sourceStream = builder.stream("firstTopic");
-        KTable<String, String> sourceTable = builder.table("firstTopic");
-        GlobalKTable<String, String> sourceGlobalTable = builder.globalTable("firstTopic");
+        KStream<String, String> sourceStream = builder.stream("mytopic");
+        KTable<String, String> sourceTable = builder.table("mytopic");
+        GlobalKTable<String, String> sourceGlobalTable = builder.globalTable("mytopic");
 
-        sourceStream.to("secondTopic");
+        sourceStream.to("targettopic");
 
-        KStream<String, String> secondStream = sourceStream.through("secondTopic");
+        KStream<String, String> secondStream = sourceStream.through("targettopic");
     }
 }

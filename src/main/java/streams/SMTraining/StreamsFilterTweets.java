@@ -30,7 +30,7 @@ public class StreamsFilterTweets {
         //configuration
         Properties props = new Properties();
         props.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
-        props.setProperty(StreamsConfig.APPLICATION_ID_CONFIG,"StreamsFilterTweets-01");
+        props.setProperty(StreamsConfig.APPLICATION_ID_CONFIG,"StreamsFilterTweets-v1");
 
         props.setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName());
         props.setProperty(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName());
@@ -38,12 +38,12 @@ public class StreamsFilterTweets {
         //create the topology
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, String> inputTopic = builder.stream("firstTopic");
+        KStream<String, String> inputTopic = builder.stream("mytopic");
         KStream<String, String> filteredStream = inputTopic.filter(
                 (k,v) -> extractFollowers(v) > 1000
         );
 
-        filteredStream.to("someTopic");
+        filteredStream.to("targettopic");
 
         //build the topology
         KafkaStreams streams = new KafkaStreams(builder.build(), props);
