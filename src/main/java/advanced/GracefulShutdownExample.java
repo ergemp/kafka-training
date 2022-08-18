@@ -1,6 +1,5 @@
 package advanced;
 
-import introduction.producer.AsyncProducer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -22,7 +21,8 @@ public class GracefulShutdownExample {
     public static void main(String[] args) {
 
         Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
+        //props.put("bootstrap.servers", "localhost:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.3:9092,10.211.55.4:9092,10.211.55.6:9092");
         props.put("group.id", "GracefulShutdownExample");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -71,6 +71,7 @@ public class GracefulShutdownExample {
         finally {
             //commit and flush the offsets (graceful close)
             log.info("closing the consumer");
+            consumer.commitAsync();
             consumer.close();
         }
     }

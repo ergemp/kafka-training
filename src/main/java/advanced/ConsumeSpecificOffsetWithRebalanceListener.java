@@ -55,8 +55,11 @@ public class ConsumeSpecificOffsetWithRebalanceListener {
                 // examples
                 //
                 //consumer.seekToBeginning(Collections.singleton(partition));
+
                 //consumer.assign(Collections.singleton(partition));
+
                 //consumer.seekToEnd(Collections.singleton(partition));
+
                 //lastOffset = consumer.position(partition);
                 //consumer.seek(partition, lastOffset-10);
             }

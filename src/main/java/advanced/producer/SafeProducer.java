@@ -16,10 +16,11 @@ public class SafeProducer {
 
         props.setProperty(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG,"120000"); //default 2 minutes
         props.setProperty(ProducerConfig.ACKS_CONFIG, "ALL"); //default 1
-        props.setProperty(ProducerConfig.RETRIES_CONFIG, String.valueOf(Integer.MAX_VALUE)); // default Integer.MAX_VLAUE
+        props.setProperty(ProducerConfig.RETRIES_CONFIG, String.valueOf(Integer.MAX_VALUE)); // default Integer.MAX_VALUE
         props.setProperty(ProducerConfig.RETRY_BACKOFF_MS_CONFIG , "100"); //default 100ms
 
-        props.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5"); //default 5 as of kafka 2.4, set to 1 if ordering is a must or kafka < 1.1
+        props.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5");
+        //default 5 as of kafka 2.4, set to 1 if ordering is a must or kafka < 1.1
 
         //important !!.
         //set min.insync.replicas = 2 in broker or topic level

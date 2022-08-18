@@ -17,7 +17,7 @@ public class HighThroughputProducer {
         //Safe parameters
         props.setProperty(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG,"120000"); //default 2 minutes
         props.setProperty(ProducerConfig.ACKS_CONFIG, "ALL"); //default 1
-        props.setProperty(ProducerConfig.RETRIES_CONFIG, "2000000000"); // default Integet.MAXINT
+        props.setProperty(ProducerConfig.RETRIES_CONFIG, "2000000000"); // default Integer.MAXINT
         props.setProperty(ProducerConfig.RETRY_BACKOFF_MS_CONFIG , "100"); //default 100ms
         props.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5"); //default 5, set to 1 if ordering is a must
 

@@ -30,7 +30,7 @@ public class ConsumerAtMostOnce {
         //
 
         consumer = new KafkaConsumer<String, String>(props);
-        consumer.subscribe(Collections.singletonList("testTopic2"));
+        consumer.subscribe(Collections.singletonList("mytopic"));
 
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));

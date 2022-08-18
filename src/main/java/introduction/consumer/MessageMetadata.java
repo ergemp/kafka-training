@@ -15,7 +15,8 @@ public class MessageMetadata {
 
     public static void main(String[] args) {
         Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
+        //props.put("bootstrap.servers", "localhost:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.3:9092,10.211.55.4:9092,10.211.55.6:9092");
         props.put("group.id", "MessageMetadata");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -32,7 +33,7 @@ public class MessageMetadata {
                 System.out.println("Received message: (" + record.key() + ", " +
                         record.value() + ")  at offset:  " +
                         record.offset() + "  at partition:  " +
-                        record.partition() + "at timestamp: " +
+                        record.partition() + " at timestamp: " +
                         record.timestamp() + " and the headers are: " +
                         record.headers().toString()
                 );

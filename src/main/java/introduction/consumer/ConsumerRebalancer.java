@@ -22,15 +22,16 @@ public class ConsumerRebalancer {
         log.info("Consumer Rebalancer Started");
 
         Properties props = new Properties();
-        props.put("bootstrap.servers", "192.168.64.10:9092,192.168.64.11:9092,192.168.64.12:9092");
-        props.put("group.id", "KafkaAsyncConsumer");
+        //props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.3:9092,10.211.55.4:9092,10.211.55.6:9092");
+        props.put("group.id", "ConsumerRebalancer-v1");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
 
         consumer = new KafkaConsumer<String, String>(props);
-        consumer.subscribe(Collections.singletonList("testTopic"), new consumerRebalanceListener());
+        consumer.subscribe(Collections.singletonList("mytopic"), new consumerRebalanceListener());
 
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
