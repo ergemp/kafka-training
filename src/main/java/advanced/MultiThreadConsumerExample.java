@@ -1,18 +1,19 @@
 package advanced;
 
+import introduction.consumer.ConsumerRebalancer;
 import org.apache.kafka.clients.consumer.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MultiThreadConsumerExample {
+
+    private static final Logger log = LoggerFactory.getLogger(ConsumerRebalancer.class.getSimpleName());
 
     private static final int numberOfConsumers = 2;
     private static List<ConsumerThread> consumers;
@@ -37,7 +38,7 @@ class ConsumerThread implements Runnable {
 
     public ConsumerThread() {
         localConsumer = ConsumerCreator.createConsumer();
-        localConsumer.subscribe(Collections.singletonList("mytopic"));
+        localConsumer.subscribe(Collections.singletonList("mytopic"), new consumerRebalanceListener());
     }
 
     @Override
@@ -50,15 +51,34 @@ class ConsumerThread implements Runnable {
                 System.out.println("Receive message: " + record.value() + ", Partition: "
                         + record.partition() + ", Offset: " + record.offset() + ", by ThreadID: "
                         + Thread.currentThread().getId() + ", ThreadName: " + Thread.currentThread().getName() );
+
             }
         }
     }
 }
 
+class consumerRebalanceListener implements ConsumerRebalanceListener {
+    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+        System.out.println("ConsumerRebalanceListener: Partition Revoked");
+    }
+
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+        for(TopicPartition partition: partitions) {
+            //consumer.seekToBeginning(Collections.singleton(partition));
+            //consumer.seekToEnd(Collections.singleton(partition));
+            //consumer.seek(partition, 9L);
+            System.out.println("ConsumerRebalanceListener: Partition Reassigned " + partition.topic() + " - " + partition.partition());
+
+        }
+    }
+}
+
+
 class ConsumerCreator {
     public static Consumer<String, String> createConsumer() {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        //props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.3:9092,10.211.55.4:9092,10.211.55.6:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "MultiThreadConsumerExample-0");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
