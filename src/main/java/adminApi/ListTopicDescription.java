@@ -13,19 +13,15 @@ import java.util.stream.Collectors;
 
 public class ListTopicDescription {
     public static void main(String[] args) {
-
-        // First we need to initialize Kafka properties
         Properties properties = new Properties();
-        properties.put("bootstrap.servers","localhost:9092");
-        properties.put("bootstrap.servers","10.211.55.3:9092");
-        properties.put("client.id","java-admin-client");
+        properties.put("bootstrap.servers", "localhost:9092");
+        properties.put("client.id", "ListTopicDescription");
 
         System.out.println("***** Topics *****");
         printTopicDetails(properties);
 
         System.out.println("***** Topics Description *****");
         printTopicDescription(properties);
-
     }
 
     private static Collection<TopicListing> getTopicListing(AdminClient client, boolean isInternal)  throws InterruptedException, ExecutionException {
