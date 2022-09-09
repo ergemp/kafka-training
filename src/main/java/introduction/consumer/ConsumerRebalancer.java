@@ -23,12 +23,12 @@ public class ConsumerRebalancer {
 
         Properties props = new Properties();
         //props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.3:9092,10.211.55.4:9092,10.211.55.6:9092");
-        props.put("group.id", "ConsumerRebalancer-v1");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.9:9092,10.211.55.10:9092,10.211.55.11:9092");
+        props.put("group.id", "ConsumerRebalancer-v2");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         consumer = new KafkaConsumer<String, String>(props);
         consumer.subscribe(Collections.singletonList("mytopic"), new consumerRebalanceListener());
@@ -48,7 +48,7 @@ public class ConsumerRebalancer {
 
     private static class consumerRebalanceListener implements ConsumerRebalanceListener {
         public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-            System.out.println("ConsumerRebalanceListener: Partition Revoked");
+            System.out.println("ConsumerRebalanceListener: Partitions Revoked");
         }
 
         public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
