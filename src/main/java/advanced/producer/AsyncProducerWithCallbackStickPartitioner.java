@@ -41,6 +41,12 @@ public class AsyncProducerWithCallbackStickPartitioner {
                     }
                 }
             });
+
+            try {
+                Thread.sleep(0);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         try {

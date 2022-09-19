@@ -14,7 +14,7 @@ public class ListingBrokerProperties {
     public static void main(String[] args) {
 
         Properties config = new Properties();
-        config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.9:9092");
 
         AdminClient admin = AdminClient.create(config);
 
