@@ -1,4 +1,4 @@
-package streams.SMTraining;
+package streams;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -10,12 +10,12 @@ import org.apache.kafka.streams.kstream.KTable;
 
 import java.util.Properties;
 
-public class WriteToKafkaExamples {
+public class ReadFromKafkaExamples {
 
     public static void main(String[] args) {
         Properties props = new Properties();
 
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "WriteToKafkaExamples");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "ReadFromKafkaExamples");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
@@ -26,8 +26,8 @@ public class WriteToKafkaExamples {
         KTable<String, String> sourceTable = builder.table("mytopic");
         GlobalKTable<String, String> sourceGlobalTable = builder.globalTable("mytopic");
 
-        sourceStream.to("targettopic");
 
-        KStream<String, String> secondStream = sourceStream.through("targettopic");
+
+
     }
 }

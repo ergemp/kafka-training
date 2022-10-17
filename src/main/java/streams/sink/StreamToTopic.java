@@ -1,4 +1,4 @@
-package streams;
+package streams.sink;
 
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;

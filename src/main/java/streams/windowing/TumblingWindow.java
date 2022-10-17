@@ -1,4 +1,4 @@
-package streams;
+package streams.windowing;
 
 import org.apache.commons.cli.*;
 import org.apache.kafka.common.serialization.Serde;
@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class CustomMapper {
+public class TumblingWindow {
     private static String globalJsonKey = "pagetype";
-    private static String inputTopic = "input";
-    private static String outputTopic = "outEventCounts";
-    private static String appID = "streamingAPI_streamCustomMappers";
+    private static String inStream = "test";
+    private static String outStream = "outEventCounts-10Sec";
+    private static String appID = "streamingAPI-tumblingwindow10sec";
     private static String bootstrapServers = "localhost:9092";
 
     public static void main(String[] args) throws Exception
@@ -25,8 +25,8 @@ public class CustomMapper {
 
         Options options = new Options();
         options.addOption("globalJsonKey", true, "json key for the event value");
-        options.addOption("inputTopic", true, "kafka topic for streaming events");
-        options.addOption("outputTopic", true, "kafka topic event counts. This topic will store events counts");
+        options.addOption("inStream", true, "kafka topic for streaming events");
+        options.addOption("outStream", true, "kafka topic for cumulative events");
         options.addOption("appID", true, "streaming application ID");
         options.addOption("bootstrapServers", true, "defines kafka broker list");
 
@@ -42,12 +42,12 @@ public class CustomMapper {
 
             if (cmd.hasOption("leftStream"))
             {
-                inputTopic = cmd.getOptionValue("leftStream");
+                inStream = cmd.getOptionValue("inStream");
             }
 
             if (cmd.hasOption("lookupTable"))
             {
-                outputTopic = cmd.getOptionValue("lookupTable");
+                outStream = cmd.getOptionValue("outStream");
             }
 
             if (cmd.hasOption("appID"))
@@ -74,12 +74,17 @@ public class CustomMapper {
             System.out.println("Options List for exec: ");
             System.out.println("-----------------------");
             System.out.println("globalJsonKey: " + globalJsonKey + " --> Description: " + options.getOption("globalJsonKey").getDescription());
-            System.out.println("inputTopic: " + inputTopic + " --> Description: " + options.getOption("inputTopic").getDescription());
-            System.out.println("outputTopic: " + outputTopic + " --> Description: " + options.getOption("outputTopic").getDescription());
+            System.out.println("leftStream: " + inStream + " --> Description: " + options.getOption("inStream").getDescription());
+            System.out.println("lookupTable: " + outStream + " --> Description: " + options.getOption("outStream").getDescription());
             System.out.println("appID: " + appID + " --> Description: " + options.getOption("appID").getDescription());
             System.out.println("bootstrapServers: " + bootstrapServers + " --> Description: " + options.getOption("bootstrapServers").getDescription());
             System.out.println("-----------------------");
         }
+
+
+        //System.exit(0);
+
+
         final StreamsBuilder builder = new StreamsBuilder();
 
         final Serde< String > stringSerde = Serdes.String();
@@ -91,35 +96,40 @@ public class CustomMapper {
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
 
-        System.out.println("Main: properties created");
-        System.out.println("------------------------");
-        System.out.println(props.toString());
-        System.out.println("------------------------");
+        KStream<String, String> source = builder.stream(inStream);
 
-        System.out.println("Main: creating stream topology");
-        KStream<String, String> source = builder.stream(inputTopic);
-
-        source
+        KStream<String, String> events = source
                 .filter(new customFilter())
                 .flatMapValues(new customValueMapper())
                 .map(new customKVMapper())
+                ;
+
+        events.to("outEvents");
+
+/*
+        events
                 .groupBy(new groupKVMapper())
-                .count()
-                .mapValues(new stringToLongValueMapper())
-                .toStream()
-                .to(outputTopic)
-        ;
+                .count(TimeWindows.of(10000L).until(10000L))
+                .mapValues(value-> Long.toString(value))
+                .toStream((wk, v) -> wk.key())
+                .to(outStream);
+*/
+        /*
+        events
+            .groupBy((key, value) -> value)
+            .windowedBy(TimeWindows.of(10000L).until(10000L))
+            .count()
+            .mapValues(value -> Long.toString(value))
+            .toStream((key, value) -> key.key() + ";" + key.window().start())
+            .to(outStream);
+            ;
+        */
 
         final Topology topology = builder.build();
-
-        System.out.println("Main: toplogy created");
-        System.out.println("---------------------");
         System.out.println(topology.describe());
-        System.out.println("---------------------");
-
-        System.out.println("Main: starting stream...");
         final KafkaStreams streams = new KafkaStreams(topology, props);
 
+        //streams.cleanUp();
         streams.start();
 
         // usually the stream application would be running forever,
@@ -128,23 +138,15 @@ public class CustomMapper {
         //streams.close();
 
         /*
-
-        //test data set
-        {"ts":1525207511,"a":53,"url":"commercedemo.xenn.io/ajax-full-zip-sweatshirt.html","rf":"","ecommerce":{"currencyCode":"USD"},"pageType":"catalog_product_view","list":"detail","product":{"id":"243","sku":"MH12","name":"Ajax Full-Zip Sweatshirt ","price":69,"attribute_set_id":"9","path":"Men > Tops > Hoodies & Sweatshirts > Ajax Full-Zip Sweatshirt "},"gtm.start":1525207509279,"event":"gtm.dom","gtm.uniqueEventId":1,"nm":"PV","pid":"82478-59608-86276","sid":"21145-32562-59600"}
-
-        bin/kafka-console-consumer.sh --bootstrap-server 192.168.56.110:9092 --topic outEventCounts --property print.key=true --from-beginning
-        catalog_product_view
-        catalog_product_view
+        bin/kafka-console-consumer.sh --bootstrap-server 192.168.56.110:9092 --topic outEventCounts-10Sec --property print.key=true --from-beginning
+        catalog_product_view    3
+        catalog_product_view    1
+        catalog_product_view    1
+        catalog_product_view    1
+        catalog_product_view    1
         catalog_product_view    1
         catalog_product_view    2
-        catalog_product_view    24
-        catalog_product_view    26
-        catalog_category_view   1
-        catalog_product_view    27
-        catalog_category_view   3
-        catalog_product_view    5
-        catalog_product_view    6
-        catalog_product_view    7
+        catalog_product_view    4
         */
     }
 
@@ -155,12 +157,10 @@ public class CustomMapper {
         {
             if (value.toLowerCase().contains(globalJsonKey))
             {
-                System.out.println("customFilter: event contains " + globalJsonKey + " returning true");
                 return true;
             }
             else
             {
-                System.out.println("customFilter: event doesnt contain " + globalJsonKey + " returning false");
                 return false;
             }
         }
@@ -188,18 +188,7 @@ public class CustomMapper {
             List<String> retList = new ArrayList<>();
             retList.add(retStr);
 
-            System.out.println("customValueMapper: input-> " + tmpVal + " output -> " + retList.toString());
             return retList;
-        }
-    }
-
-    public static class stringToLongValueMapper implements ValueMapper<Long, String>
-    {
-        @Override
-        public String apply(Long value)
-        {
-            System.out.println("stringToLongValueMapper: returning -> " + Long.toString(value));
-            return Long.toString(value);
         }
     }
 
@@ -207,8 +196,15 @@ public class CustomMapper {
     {
         public KeyValue<String, String> apply(String key, String value)
         {
-            System.out.println("stringToLongValueMapper: returning -> " + value + " , " + value);
             return new KeyValue<String, String>(value, value);
+        }
+    }
+
+    public static class customKeytoValueMapper implements KeyValueMapper<String, Long, KeyValue<String, String>>
+    {
+        public KeyValue<String, String> apply(String key, Long value)
+        {
+            return new KeyValue<String, String>("", key.toString() + " - " + value.toString());
         }
     }
 
@@ -216,8 +212,19 @@ public class CustomMapper {
     {
         @Override
         public String apply(String key, String value) {
-            System.out.println("groupKVMapper: returning -> value: " + value.toString() + "");
+
+            //System.out.println(key.toString() + " - " + value.toString());
             return value;
+        }
+    }
+
+    public static class sinkValueMapper implements ValueMapper<String, Long>
+    {
+        @Override
+        public Long apply(String value) {
+
+            //System.out.println(key.toString() + " - " + value.toString());
+            return Long.getLong(value);
         }
     }
 }
