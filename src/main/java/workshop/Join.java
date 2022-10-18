@@ -1,4 +1,4 @@
-package streams;
+package workshop;
 
 import org.apache.commons.cli.*;
 import org.apache.kafka.common.serialization.Serde;

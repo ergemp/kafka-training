@@ -1,28 +1,32 @@
-package streams;
+package workshop;
 
 import org.apache.commons.cli.*;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
-import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KeyValueMapper;
+import org.apache.kafka.streams.kstream.Predicate;
+import org.apache.kafka.streams.kstream.ValueMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class UniqueEventCounter {
+public class CustomMapper {
     private static String globalJsonKey = "pagetype";
-    private static String leftStream = "test";
-    private static String lookupTable = "outTopics";
-    private static String appID = "streamingAPI-unqEventProcessor";
+    private static String inputTopic = "input";
+    private static String outputTopic = "outEventCounts";
+    private static String appID = "streamingAPI_streamCustomMappers";
     private static String bootstrapServers = "localhost:9092";
 
     public static void main(String[] args) throws Exception
     {
+
         Options options = new Options();
         options.addOption("globalJsonKey", true, "json key for the event value");
-        options.addOption("leftStream", true, "kafka topic for streaming events");
-        options.addOption("lookupTable", true, "kafka topic name for lookup. This topic will stores unique events");
+        options.addOption("inputTopic", true, "kafka topic for streaming events");
+        options.addOption("outputTopic", true, "kafka topic event counts. This topic will store events counts");
         options.addOption("appID", true, "streaming application ID");
         options.addOption("bootstrapServers", true, "defines kafka broker list");
 
@@ -38,12 +42,12 @@ public class UniqueEventCounter {
 
             if (cmd.hasOption("leftStream"))
             {
-                leftStream = cmd.getOptionValue("leftStream");
+                inputTopic = cmd.getOptionValue("leftStream");
             }
 
             if (cmd.hasOption("lookupTable"))
             {
-                lookupTable = cmd.getOptionValue("lookupTable");
+                outputTopic = cmd.getOptionValue("lookupTable");
             }
 
             if (cmd.hasOption("appID"))
@@ -70,22 +74,17 @@ public class UniqueEventCounter {
             System.out.println("Options List for exec: ");
             System.out.println("-----------------------");
             System.out.println("globalJsonKey: " + globalJsonKey + " --> Description: " + options.getOption("globalJsonKey").getDescription());
-            System.out.println("leftStream: " + leftStream + " --> Description: " + options.getOption("leftStream").getDescription());
-            System.out.println("lookupTable: " + lookupTable + " --> Description: " + options.getOption("lookupTable").getDescription());
+            System.out.println("inputTopic: " + inputTopic + " --> Description: " + options.getOption("inputTopic").getDescription());
+            System.out.println("outputTopic: " + outputTopic + " --> Description: " + options.getOption("outputTopic").getDescription());
             System.out.println("appID: " + appID + " --> Description: " + options.getOption("appID").getDescription());
             System.out.println("bootstrapServers: " + bootstrapServers + " --> Description: " + options.getOption("bootstrapServers").getDescription());
             System.out.println("-----------------------");
         }
-
-
-        //System.exit(0);
-
         final StreamsBuilder builder = new StreamsBuilder();
 
-        final Serde<String> stringSerde = Serdes.String();
-        final Serde <Long> longSerde = Serdes.Long();
+        final Serde< String > stringSerde = Serdes.String();
+        final Serde < Long > longSerde = Serdes.Long();
 
-        System.out.println("Main: creating properties with the supplied parameters");
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, appID);
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -98,76 +97,76 @@ public class UniqueEventCounter {
         System.out.println("------------------------");
 
         System.out.println("Main: creating stream topology");
-        KStream<String, String> source = builder.stream(leftStream);
-        KTable<String, String> unqTopics = builder.table(lookupTable);
+        KStream<String, String> source = builder.stream(inputTopic);
 
-        KStream<String, String> events = source
-                .filter(new jsonKeyValueFilter())
-                .flatMapValues(new jsonValueMapper())
-                .map(new customVKMapper())
-                ;
-
-        //KStream<String, String> joined =
-        events
-                .leftJoin(unqTopics, new customValueJoiner())
-                .filter(new checkNullRightFilter())
+        source
+                .filter(new customFilter())
+                .flatMapValues(new customValueMapper())
                 .map(new customKVMapper())
-                .to(lookupTable)
+                .groupBy(new groupKVMapper())
+                .count()
+                .mapValues(new stringToLongValueMapper())
+                .toStream()
+                .to(outputTopic)
         ;
 
         final Topology topology = builder.build();
+
         System.out.println("Main: toplogy created");
         System.out.println("---------------------");
         System.out.println(topology.describe());
         System.out.println("---------------------");
 
-
         System.out.println("Main: starting stream...");
         final KafkaStreams streams = new KafkaStreams(topology, props);
+
         streams.start();
 
         // usually the stream application would be running forever,
         // in this example we just let it run for some time and stop since the input data is finite.
-        // Thread.sleep(60000L);
-        // streams.close();
+        //Thread.sleep(60000L);
+        //streams.close();
+
+        /*
+
+        //test data set
+        {"ts":1525207511,"a":53,"url":"commercedemo.xenn.io/ajax-full-zip-sweatshirt.html","rf":"","ecommerce":{"currencyCode":"USD"},"pageType":"catalog_product_view","list":"detail","product":{"id":"243","sku":"MH12","name":"Ajax Full-Zip Sweatshirt ","price":69,"attribute_set_id":"9","path":"Men > Tops > Hoodies & Sweatshirts > Ajax Full-Zip Sweatshirt "},"gtm.start":1525207509279,"event":"gtm.dom","gtm.uniqueEventId":1,"nm":"PV","pid":"82478-59608-86276","sid":"21145-32562-59600"}
+
+        bin/kafka-console-consumer.sh --bootstrap-server 192.168.56.110:9092 --topic outEventCounts --property print.key=true --from-beginning
+        catalog_product_view
+        catalog_product_view
+        catalog_product_view    1
+        catalog_product_view    2
+        catalog_product_view    24
+        catalog_product_view    26
+        catalog_category_view   1
+        catalog_product_view    27
+        catalog_category_view   3
+        catalog_product_view    5
+        catalog_product_view    6
+        catalog_product_view    7
+        */
     }
 
-    public static class checkNullRightFilter implements Predicate<String, String>
+    public static class customFilter implements Predicate<String, String>
     {
         @Override
         public boolean test(String key, String value)
         {
-            //System.out.println("checkNullRightFilter -- key: " + key + " - value: " + value);
-            if (value == null)
+            if (value.toLowerCase().contains(globalJsonKey))
             {
-                System.out.println("checkNullRightFilter: new event captured --> (key: " + key + " - value: " + value + ")");
+                System.out.println("customFilter: event contains " + globalJsonKey + " returning true");
                 return true;
             }
             else
             {
+                System.out.println("customFilter: event doesnt contain " + globalJsonKey + " returning false");
                 return false;
             }
         }
     }
 
-    public static class jsonKeyValueFilter implements Predicate<String, String>
-    {
-        @Override
-        public boolean test(String key, String value)
-        {
-            //System.out.println("jsonKeyValueFilter -- key: " + key + " - value: " + value);
-            if (value.toLowerCase().contains(globalJsonKey.toLowerCase()))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    }
-
-    public static class jsonValueMapper implements ValueMapper<String, Iterable<String>>
+    public static class customValueMapper implements ValueMapper<String, Iterable<String>>
     {
         @Override
         public Iterable<String> apply(String value)
@@ -180,7 +179,7 @@ public class UniqueEventCounter {
 
             for (Integer i=0; i<arrVal.length; i++)
             {
-                if (arrVal[i].toLowerCase().contains(globalJsonKey.toLowerCase()))
+                if (arrVal[i].toLowerCase().contains(globalJsonKey))
                 {
                     retStr = arrVal[i].split(":")[1];
                 }
@@ -189,16 +188,18 @@ public class UniqueEventCounter {
             List<String> retList = new ArrayList<>();
             retList.add(retStr);
 
+            System.out.println("customValueMapper: input-> " + tmpVal + " output -> " + retList.toString());
             return retList;
         }
     }
 
-    public static class customVKMapper implements KeyValueMapper<String, String, KeyValue<String, String>>
+    public static class stringToLongValueMapper implements ValueMapper<Long, String>
     {
-        public KeyValue<String, String> apply(String key, String value)
+        @Override
+        public String apply(Long value)
         {
-            //System.out.println("customVKMapper -- key: " + key + " - value: " + value);
-            return new KeyValue<String, String>(value, value);
+            System.out.println("stringToLongValueMapper: returning -> " + Long.toString(value));
+            return Long.toString(value);
         }
     }
 
@@ -206,18 +207,17 @@ public class UniqueEventCounter {
     {
         public KeyValue<String, String> apply(String key, String value)
         {
-            //System.out.println("customKVMapper -- key: " + key + " - value: " + value);
-            return new KeyValue<String, String>(key, key);
+            System.out.println("stringToLongValueMapper: returning -> " + value + " , " + value);
+            return new KeyValue<String, String>(value, value);
         }
     }
 
-    public static class customValueJoiner implements ValueJoiner<String, String, String>
+    public static class groupKVMapper implements KeyValueMapper<String, String, String>
     {
         @Override
-        public String apply(String leftValue, String rightValue)
-        {
-            return rightValue;
-
+        public String apply(String key, String value) {
+            System.out.println("groupKVMapper: returning -> value: " + value.toString() + "");
+            return value;
         }
     }
 }
