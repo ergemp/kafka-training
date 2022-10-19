@@ -1,16 +1,19 @@
 package streams.stateless;
 
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KeyValueMapper;
+import org.apache.kafka.streams.kstream.ValueMapper;
 
 import java.util.Properties;
 
-public class MapWithInlineFunction {
+public class MapValuesWithInlineFunction {
     public static void main(String[] args) {
         Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "MapWithInlineFunction");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "MapValuesWithInlineFunction");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
@@ -20,20 +23,15 @@ public class MapWithInlineFunction {
 
         // builder.stream("mytopic").to("mytopic-target")
         KStream<String, String> source = builder.stream("mytopic");
-
-
         source
-                .map(new KeyValueMapper<String, String, KeyValue<String, Integer>>() {
+                .mapValues(new ValueMapper<String,String>() {
                     @Override
-                    public KeyValue<String, Integer> apply(String key, String value) {
-                        //return KeyValue.pair(value.toLowerCase(), value.length());
-                        return new KeyValue<String, Integer>(value.toLowerCase(), value.length());
+                    public String apply(String s) {
+                        return s.toUpperCase();
                     }
                 })
-                .filter((key, value) -> value > 5)
                 .foreach((key, value) -> System.out.println(key + " => " + value))
         ;
-
 
         // create the topology
         final Topology topology = builder.build();
