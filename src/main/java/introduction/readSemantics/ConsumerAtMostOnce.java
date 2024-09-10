@@ -47,6 +47,7 @@ public class ConsumerAtMostOnce {
                 System.out.println(String.format("topic = %s, partition = %s, offset = %d, key = %s, value = %s\n",
                         record.topic(), record.partition(), record.offset(), record.key(), record.value()));
 
+
                 //System.out.println(record);
             }
         }

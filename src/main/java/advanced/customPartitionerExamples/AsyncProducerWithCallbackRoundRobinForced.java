@@ -15,16 +15,20 @@ public class AsyncProducerWithCallbackRoundRobinForced {
 
         Properties props = new Properties();
         //props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.3:9092,10.211.55.4:9092,10.211.55.6:9092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.9:9092,10.211.55.10:9092,10.211.55.11:9092");
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "AsyncProducerWithCallbackRoundRobinForced");  //client.id
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());  //key.serializer
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());  //value.serializer
         props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG,"org.apache.kafka.clients.producer.RoundRobinPartitioner");
 
+        props.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20");  //number of miliseconds a producer is willing to wait before sending a batch out, default 0
+        props.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, "512"); //if the batch size is full, then send out the batch without waiting linger.ms, default 16k, allocated per partition
+
+
         Producer producer = new KafkaProducer<String, String>(props);
 
 
-        for (Integer i=0; i<15; i++){
+        for (Integer i=0; i<150; i++){
 
             ProducerRecord<String, String> record =
                     new ProducerRecord<>("mytopic", "test message from java-" + i);
@@ -43,6 +47,10 @@ public class AsyncProducerWithCallbackRoundRobinForced {
                     }
                 }
             });
+            try {
+                Thread.sleep(0);
+            }
+            catch(Exception ex){}
         }
 
         try {

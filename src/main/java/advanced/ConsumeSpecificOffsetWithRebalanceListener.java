@@ -18,7 +18,7 @@ public class ConsumeSpecificOffsetWithRebalanceListener {
 
     public static void main(String[] args) {
         Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", "10.211.55.11:9092");
         props.put("group.id", "ConsumeSpecificOffsetWithRebalanceListener");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -46,10 +46,11 @@ public class ConsumeSpecificOffsetWithRebalanceListener {
                 //consumer.seekToBeginning(Collections.singleton(partition));
                 //consumer.seekToEnd(Collections.singleton(partition));
 
-                consumer.seek(partition, 9L);
+                //consumer.seek(partition, 2L);
+                //System.out.println(partition.topic() + " - " + partition.partition());
 
-                //lastOffset = consumer.position(partition);
-                //consumer.seek(partition, lastOffset-10);
+                lastOffset = consumer.position(partition);
+                consumer.seek(partition, lastOffset-1);
 
                 //
                 // examples

@@ -22,7 +22,7 @@ public class ConsumerUntilEndOfTopic {
 
         Properties props = new Properties();
         //props.put("bootstrap.servers", "localhost:9092");
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.3:9092,10.211.55.4:9092,10.211.55.6:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.3:9092");
         props.put("group.id", "ConsumerUntilEndOfTopic-v2");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");

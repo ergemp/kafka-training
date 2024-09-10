@@ -21,8 +21,8 @@ public class ConsumerBasic {
 
         Properties props = new Properties();
         //props.put("bootstrap.servers", "localhost:9092");
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.9:9092,10.211.55.10:9092,10.211.55.11:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "ConsumerBasic-V2");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.9:9092");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "ConsumerBasic-V5");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
 

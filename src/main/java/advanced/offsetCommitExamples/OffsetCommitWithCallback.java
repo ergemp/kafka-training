@@ -1,6 +1,7 @@
 package advanced.offsetCommitExamples;
 
 import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +30,22 @@ public class OffsetCommitWithCallback {
 
         consumer.subscribe(Collections.singletonList("mytopic"));
 
+
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
 
             for (ConsumerRecord<String, String> record : records) {
-                System.out.println(String.format("topic = %s, partition = %s, offset = %d, key = %s, value = %s\n",
-                        record.topic(), record.partition(), record.offset(), record.key(), record.value()));
+                try {
+                    System.out.println(String.format("topic = %s, partition = %s, offset = %d, key = %s, value = %s\n",
+                            record.topic(), record.partition(), record.offset(), record.key(), record.value()));
+                }
+                catch (Exception ex){
+
+                    consumer.commitAsync();
+                }
+                finally{
+
+                }
             }
 
             //

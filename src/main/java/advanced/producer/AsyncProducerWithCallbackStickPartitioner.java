@@ -20,9 +20,13 @@ public class AsyncProducerWithCallbackStickPartitioner {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());  //key.serializer
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());  //value.serializer
 
+        props.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20");  //number of miliseconds a producer is willing to wait before sending a batch out, default 0
+        props.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, "512"); //if the batch size is full, then send out the batch without waiting linger.ms, default 16k, allocated per partition
+
+
         Producer producer = new KafkaProducer<String, String>(props);
 
-        for (Integer i=0; i<10; i++){
+        for (Integer i=0; i<100; i++){
 
             ProducerRecord<String, String> record =
                     new ProducerRecord<>("mytopic", "test message from java-" + i);

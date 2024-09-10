@@ -19,7 +19,7 @@ public class SyncProducer {
 
         Properties props = new Properties();
         //props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.9:9092,10.211.55.10:9092,10.211.55.11:9092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.211.55.9:9092");
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "SyncProducer");  //client.id
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());  //key.serializer
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());  //value.serializer
