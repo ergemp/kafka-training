@@ -1,0 +1,11 @@
+On CentOS7, kafka version:3.3.2
+
+Should be able to find all the configurations via:
+
+bin/kafka-configs.sh --describe --bootstrap-server <advertised.listeners>:9092 --entity-type brokers --entity-name <broker-id> --all
+
+#example:
+
+bin/kafka-configs.sh --describe --bootstrap-server localhost:9092 --entity-type brokers --entity-name 0 --all
+
+Note: Both <advertised.listeners> and could be found in config/server.properties
